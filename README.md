@@ -28,7 +28,7 @@ The variables that can be passed to this role and a brief description about them
 Example
 -------
 
-Following is an example which deploys are kerberos server with Realm as BENNO.COM and a admin user "root" and password "foobar"
+Following is an example which deploys are kerberos server with Realm as EXAMPLE.COM and a admin user "root" and password "foobar"
 
     - hosts: all
       roles:
