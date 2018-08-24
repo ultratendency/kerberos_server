@@ -51,4 +51,4 @@ Licensed under BSD 3-clause. See the [LICENSE](LICENSE) file for details.
 Author Information
 ------------------
 
-Matthias Baumann & Jan Hentschel
+Matthias Baumann & Jan Hentschel ([Ultra Tendency GmbH](http://ultratendency.com/))
