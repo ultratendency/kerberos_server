@@ -46,7 +46,7 @@ None
 License
 -------
 
-BSD
+Licensed under BSD 3-clause. See the [LICENSE](LICENSE) file for details.
 
 Author Information
 ------------------
