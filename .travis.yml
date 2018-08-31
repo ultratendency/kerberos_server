@@ -5,8 +5,6 @@ env:
   - distribution: centos
     version: 7
 
-language: python
-
 services:
   - docker
 
