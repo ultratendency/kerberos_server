@@ -24,9 +24,5 @@ script:
     || (echo 'Idempotence test: fail' && exit 1)
   - 'sudo docker rm -f "$(cat ${container_id})"'
 
-branches:
-  only:
-    - master
-
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
