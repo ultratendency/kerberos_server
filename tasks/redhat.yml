@@ -2,40 +2,45 @@
 - name: Add the OS specific variables
   include_vars: "{{ ansible_os_family }}.yml"
 
-- name: Install the kerberos packages 
+- name: Install the kerberos packages
   yum:
     name: "{{ item }}"
     state: present
   with_items: "{{ kerberos_server_redhat_pkg }}"
 
-- name: Copy the kdc configuration file 
+- name: Copy the KDC configuration file
   template:
     src: kdc.conf.j2
     dest: /var/kerberos/krb5kdc/kdc.conf
-  notify: 
-   - restart kerberos
+  notify:
+    - restart kerberos
 
-- name: Copy the kdc acl configuration file 
+- name: Copy the KDC ACL configuration file
   template:
     src: kadm5.acl.j2
     dest: /var/kerberos/krb5kdc/kadm5.acl
-  notify: 
-   - restart kerberos
+  notify:
+    - restart kerberos
 
-- name: Copy the client configuration file 
+- name: Copy the client configuration file
   template:
     src: krb5.conf.j2
     dest: /etc/krb5.conf
 
-- name: Create the initial kerberos database
-  shell: echo -e "{{ kerberos_server_master_db_pass }}\n{{ kerberos_server_master_db_pass }}" | kdb5_util create -s; touch /var/kerberos/db_created creates=/var/kerberos/db_created
+- name: Create the initial Kerberos database
+  shell: >
+    echo -e "{{ kerberos_server_master_db_pass }}\n{{ kerberos_server_master_db_pass }}" | kdb5_util create -s;
+    touch /var/kerberos/db_created creates=/var/kerberos/db_created
 
-- name: Start the kerberos services 
+- name: Start the Kerberos services
   service:
     name: "{{ item }}"
     state: started
-    enabled: yes
+    enabled: True
   with_items: "{{ kerberos_service }}"
 
-- name: Create an admin for administering the kerberos database
-  shell: echo -e "{{ kerberos_server_kadmin_pass }}\n{{ kerberos_server_kadmin_pass }}" | kadmin.local  -q "addprinc {{ kerberos_server_kadmin_user }}/admin"; touch /var/kerberos/admin_created creates=/var/kerberos/admin_created
+- name: Create an admin user for administering the Kerberos database
+  shell: >
+    echo -e "{{ kerberos_server_kadmin_pass }}\n{{ kerberos_server_kadmin_pass }}" |
+    kadmin.local  -q "addprinc {{ kerberos_server_kadmin_user }}/admin";
+    touch /var/kerberos/admin_created creates=/var/kerberos/admin_created
