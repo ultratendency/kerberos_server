@@ -6,24 +6,13 @@ language: python
 services:
   - docker
 
-jobs:
-  include:
-    - stage: test
-      before_install:
-        - sudo apt-get -qq update
-      install:
-        - pip install molecule
-        - pip install docker
-      script:
-        - molecule test
-    - stage: deploy
-      if: (branch = master) AND (NOT (type IN (pull_request)))
-      before_install:
-        - sudo apt-get -qq update
-      install:
-        - pip install molecule
-        - pip install docker
-      script:
-        - molecule test
-      notifications:
-        webhooks: https://galaxy.ansible.com/api/v1/notifications/
+before_install:
+  - sudo apt-get -qq update
+install:
+  - pip install molecule
+  - pip install docker
+script:
+  - molecule test
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
