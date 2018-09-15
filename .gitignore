@@ -68,5 +68,6 @@ fabric.properties
 .idea/httpRequests
 
 /venv
+
 __pycache__/
 *.pyc
