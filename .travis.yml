@@ -18,5 +18,12 @@ jobs:
         - molecule test
     - stage: deploy
       if: (branch = master) AND (NOT (type IN (push, pull_request)))
+      before_install:
+        - sudo apt-get -qq update
+      install:
+        - pip install molecule
+        - pip install docker
+      script:
+        - molecule test
       notifications:
         webhooks: https://galaxy.ansible.com/api/v1/notifications/
