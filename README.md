@@ -34,7 +34,7 @@ Following is an example which deploys are kerberos server with Realm as EXAMPLE.
 
     - hosts: all
       roles:
-        - {role: kerberos_server, kerberos_server_realm_name: "EXAMPLE.COM", 
+        - { role: kerberos_server, kerberos_server_realm_name: "EXAMPLE.COM", 
                             kerberos_server_kadmin_user: "root", 
                             kerberos_server_kadmin_pass: "foobar" }
 
