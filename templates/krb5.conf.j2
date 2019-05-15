@@ -13,7 +13,9 @@
 
 [realms]
  {{ kerberos_server_realm_name| upper() }} = {
-  kdc = {{ ansible_hostname }}.{{ kerberos_server_realm_name|lower() }}
+{% for host in kerberos_server_kdcs %}
+  kdc = {{ host }}.{{ kerberos_server_realm_name|lower() }}
+{% endfor %}
   admin_server = {{ ansible_hostname }}.{{ kerberos_server_realm_name|lower() }}
  }
 

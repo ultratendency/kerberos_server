@@ -1,6 +1,7 @@
 ---
 - name: restart kerberos
   service:
-    name: "{{ item }}"
+    name: "{{ kerberos_kdc_service }}"
     state: restarted
-  with_items: "{{ kerberos_service }}"
+
+# TODO Handle restart of kadmin but only if not a replica (in case of  multiple kdcs )
