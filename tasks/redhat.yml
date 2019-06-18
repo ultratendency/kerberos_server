@@ -4,9 +4,8 @@
 
 - name: Install the kerberos packages
   yum:
-    name: "{{ item }}"
+    name: "{{ kerberos_server_redhat_pkg }}"
     state: present
-  with_items: "{{ kerberos_server_redhat_pkg }}"
 
 - name: Copy the KDC configuration file
   template:
