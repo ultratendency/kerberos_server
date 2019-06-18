@@ -29,6 +29,7 @@
 
 - name: Create the initial Kerberos database
   shell: >
+    set -o pipefail;
     echo -e "{{ kerberos_server_master_db_pass }}\n{{ kerberos_server_master_db_pass }}" | kdb5_util create -s;
     touch /var/kerberos/db_created creates=/var/kerberos/db_created
 
@@ -41,6 +42,7 @@
 
 - name: Create an admin user for administering the Kerberos database
   shell: >
+    set -o pipefail;
     echo -e "{{ kerberos_server_kadmin_pass }}\n{{ kerberos_server_kadmin_pass }}" |
     kadmin.local  -q "addprinc {{ kerberos_server_kadmin_user }}/admin";
     touch /var/kerberos/admin_created creates=/var/kerberos/admin_created
