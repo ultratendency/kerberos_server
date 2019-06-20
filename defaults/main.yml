@@ -1,6 +1,6 @@
 ---
 kerberos_server_realm_name: EXAMPLE.COM
-kerberos_server_kdcs: 
+kerberos_server_kdcs:
   - "{{ ansible_hostname }}"
 kerberos_server_kdc_port: 88
 kerberos_server_master_db_pass: foobar

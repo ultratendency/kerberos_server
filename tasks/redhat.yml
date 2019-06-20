@@ -40,12 +40,12 @@
 
 # if /var/kerberos/krb5kdc/kpropd.acl exists, do not try to start kadmin on this host as it is probably a replica
 - name: Check if replica (kpropd.acl exists)
-  stat: 
+  stat:
     path: /var/kerberos/krb5kdc/kpropd.acl
   register: st
 
 - name: Start kadmin service if not replica/slave
-  service: 
+  service:
     name: "{{ kerberos_kadmin_service }}"
     state: started
     enabled: yes
