@@ -1,0 +1,54 @@
+## Note: These tasks only need to be run on the kerberos master
+- name: Create kdc host principals
+  command: kadmin.local -q "addprinc -randkey  host/{{ item }}@{{ kerberos_server_realm_name|upper() }}"
+  #TODO check if the principals already exists
+  #when: >
+  #no_log: true
+  loop: "{{ kerberos_server_kdcs }}"
+
+- name: Create keytab with the kdcs (only on the master)
+  command: kadmin.local -q "ktadd -k /etc/krb5.keytab host/{{ item }}@{{ kerberos_server_realm_name|upper() }}"
+  loop: "{{ kerberos_server_kdcs }}"
+
+#  args:
+#    creates: "{{ kerberos_keytabs_dir }}/{{ p.username }}.user.keytab"
+
+- name: ensure rsync is installed (to use synchronize tasks)
+  package:
+    name: rsync
+
+# Finally, we want to copy the keytab over to the slave server so that it has the keys it needs available to authenticate.
+- name: Sync the keytab from the master to the replica kdcs 
+  synchronize:
+    src: /etc/krb5.keytab
+    dest: /etc/
+  delegate_to: "{{ item }}"
+  loop: "{{ kerberos_server_kdcs[1:] }}"
+
+
+- name: Deploy the kprop replication script
+  template:
+    src: kprop_kdc_replica_sync.sh
+    dest: /var/kerberos/kprop_kdc_replica_sync.sh
+    mode: 0755
+  when: 
+    - kerberos_server_kprop_replication_enabled
+
+- block:
+    - name: ensure cron is installed
+      package:
+        name: cronie
+
+    - name: ensure crond service enabled and started 
+      service:
+        name: crond
+        state: started
+        enabled: yes
+
+    - name: Deploy kprop cronjob (only required with replicas)
+      cron:
+        name: "Sync Master KDC with Replica every 5 minutes"
+        minute: "*/5"
+        job: "/var/kerberos/kprop_kdc_replica_sync.sh"    
+  when:
+    - kerberos_server_kprop_cronjob_enabled

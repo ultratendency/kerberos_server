@@ -1,8 +1,9 @@
 ---
 kerberos_kdc_service: krb5kdc
 kerberos_kadmin_service: kadmin
+kerberos_kprop_service: kprop
 
 # Was used in the handler to restart both services, but now have to escape the kadmin on any replica node
-kerberos_service:
-  - "{{ kerberos_kdc_service }}"
-  - "{{ kerberos_kadmin_service }}"
+#kerberos_service:
+#  - "{{ kerberos_kdc_service }}"
+#  - "{{ kerberos_kadmin_service }}"

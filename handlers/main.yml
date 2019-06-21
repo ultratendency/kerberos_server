@@ -1,7 +1,18 @@
 ---
-- name: restart kerberos
+- name: restart kdc
   service:
     name: "{{ kerberos_kdc_service }}"
     state: restarted
-
+  
 # TODO Handle restart of kadmin but only if not a replica (in case of  multiple kdcs )
+- name: restart kadmin
+  service:
+    name: "{{ kerberos_kadmin_service }}"
+    state: restarted
+  when: is_master_host
+
+- name: restart kprop
+  service:
+    name: "{{ kerberos_kprop_service }}"
+    state: restarted
+  when: is_replica_host

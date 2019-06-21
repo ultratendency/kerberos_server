@@ -14,11 +14,11 @@
 [realms]
  {{ kerberos_server_realm_name| upper() }} = {
 {% for host in kerberos_server_kdcs %}
-  kdc = {{ host }}.{{ kerberos_server_realm_name|lower() }}
+  kdc = {{ host }}
 {% endfor %}
-  admin_server = {{ ansible_hostname }}.{{ kerberos_server_realm_name|lower() }}
+  admin_server = {{ kerberos_server_kadmin_host }}
  }
 
 [domain_realm]
- .{{ kerberos_server_realm_name|lower() }} = {{ kerberos_server_realm_name|upper() }}
-  {{ kerberos_server_realm_name|lower() }} = {{ kerberos_server_realm_name|upper() }}
+ .{{ kerberos_server_domain }} = {{ kerberos_server_realm_name|upper() }}
+  {{ kerberos_server_domain }} = {{ kerberos_server_realm_name|upper() }}
