@@ -1,5 +1,6 @@
 ---
-- set_fact:
+- name: set facts
+  set_fact:
     is_master_host: inventory_hostname == kerberos_server_kadmin_host
     is_replica_host: inventory_hostname != kerberos_server_kadmin_host
   tags: always

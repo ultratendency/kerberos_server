@@ -38,37 +38,13 @@
     name: "{{ kerberos_kdc_service }}"
     state: started
     enabled: True
-     
-#TODO maybe move to an include file
-- name: Copy the kprop ACL configuration file (on replica only)
-  template:
-    src: kpropd.acl.j2
-    dest: /var/kerberos/krb5kdc/kpropd.acl
-#  notify:
-#    - restart kprop
-  when: is_replica_host
 
-- name: Start the kprop service
-  service:
-    name: "{{ kerberos_kprop_service }}"
-    state: started
-    enabled: True
-  when: is_replica_host
-
-
-# if /var/kerberos/krb5kdc/kpropd.acl exists, do not try to start kadmin on this host as it is probably a replica
-# TODO That check does not work, as the file was not found on both nodes
-- name: Check if replica (kpropd.acl exists)
-  stat:
-    path: /var/kerberos/krb5kdc/kpropd.acl
-  register: st
 
 - name: Start kadmin service if not replica/slave
   service:
     name: "{{ kerberos_kadmin_service }}"
     state: started
     enabled: yes
-  #when: not st.stat.exists
   when: is_master_host
 
 - name: Create an admin user for administering the Kerberos database
@@ -77,9 +53,7 @@
     echo -e "{{ kerberos_server_kadmin_pass }}\n{{ kerberos_server_kadmin_pass }}" |
     kadmin.local  -q "addprinc {{ kerberos_server_kadmin_user }}/admin";
     touch /var/kerberos/admin_created creates=/var/kerberos/admin_created
-#TODO  Next you'll need to create host keys for your master and slave Kerberos servers:
 
-# TODO following only required on the master host
 - name: Get existing users
   command: kadmin.local -q "listprincs"
   ignore_errors: yes
@@ -102,7 +76,26 @@
   no_log: true
   with_items: "{{ kerberos_server_users }}"
 
-# Enable the kprop replication 
+
+# Configure the optional kprop replication on the replica(s)
+- block:
+    - name: Copy the kprop ACL configuration file (on replica only)
+      template:
+        src: kpropd.acl.j2
+        dest: /var/kerberos/krb5kdc/kpropd.acl
+      notify:
+        - restart kprop
+
+    - name: Start the kprop service
+      service:
+        name: "{{ kerberos_kprop_service }}"
+        state: started
+        enabled: True
+  when:
+    - kerberos_server_kprop_replication_enabled
+    - is_replica_host
+
+# Configure the optional kprop replication on the master
 - import_tasks: kprop_replication.yml
   when:
     - kerberos_server_kprop_replication_enabled

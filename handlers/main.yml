@@ -3,8 +3,7 @@
   service:
     name: "{{ kerberos_kdc_service }}"
     state: restarted
-  
-# TODO Handle restart of kadmin but only if not a replica (in case of  multiple kdcs )
+
 - name: restart kadmin
   service:
     name: "{{ kerberos_kadmin_service }}"

@@ -1,9 +1,9 @@
+---
 ## Note: These tasks only need to be run on the kerberos master
+
+# TODO check if the principals already exists
 - name: Create kdc host principals
   command: kadmin.local -q "addprinc -randkey  host/{{ item }}@{{ kerberos_server_realm_name|upper() }}"
-  #TODO check if the principals already exists
-  #when: >
-  #no_log: true
   loop: "{{ kerberos_server_kdcs }}"
 
 - name: Create keytab with the kdcs (only on the master)
@@ -16,13 +16,13 @@
 
 # Finally, we want to copy the keytab over to the slave server so that it has the keys it needs available to authenticate.
 # Done using 2 tasks (fetch + copy), because synchronize +delegate_to +'running in docker' (molecule tests) failed for me
-- name: get the keytab from the master 
+- name: get the keytab from the master
   fetch:
     src: /etc/krb5.keytab
     dest: /tmp/
     flat: yes
 
-- name: Sync the keytab from local to the replica kdcs 
+- name: Sync the keytab from local to the replica kdcs
   copy:
     src: /tmp/krb5.keytab
     dest: /etc/
@@ -34,7 +34,7 @@
     src: kprop_kdc_replica_sync.sh
     dest: /var/kerberos/kprop_kdc_replica_sync.sh
     mode: 0755
-  when: 
+  when:
     - kerberos_server_kprop_replication_enabled
 
 - block:
@@ -42,7 +42,7 @@
       package:
         name: cronie
 
-    - name: ensure crond service enabled and started 
+    - name: ensure crond service enabled and started
       service:
         name: crond
         state: started
@@ -52,6 +52,6 @@
       cron:
         name: "Sync Master KDC with Replica every 5 minutes"
         minute: "*/5"
-        job: "/var/kerberos/kprop_kdc_replica_sync.sh"    
+        job: "/var/kerberos/kprop_kdc_replica_sync.sh"
   when:
     - kerberos_server_kprop_cronjob_enabled
