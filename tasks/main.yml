@@ -2,7 +2,7 @@
 - set_fact:
     is_master_host: inventory_hostname == kerberos_server_kadmin_host
     is_replica_host: inventory_hostname != kerberos_server_kadmin_host
-  #when: not is_replica_host is defined
+  tags: always
 
 - include: redhat.yml
   when: ansible_os_family == "RedHat"

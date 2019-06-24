@@ -103,7 +103,8 @@
   with_items: "{{ kerberos_server_users }}"
 
 # Enable the kprop replication 
-- include_tasks: kprop_replication.yml
+- import_tasks: kprop_replication.yml
   when:
     - kerberos_server_kprop_replication_enabled
     - is_master_host
+  tags: kprop_replication
