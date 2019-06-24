@@ -1,0 +1,73 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+# Using geerlingguy's image that provides centos7 with ansible AND systemd
+platforms:
+  - name: "${MOLECULE_DISTRO:-centos7}-01.local"
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-centos7}-ansible:latest"
+    pre_build_image: True
+    privileged: True
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    command: "/usr/sbin/init"
+    groups:
+      - kdc_master
+      - kdcs
+    networks:
+      - name: molecule
+    network_mode: bridge
+
+  - name: "${MOLECULE_DISTRO:-centos7}-02.local"
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-centos7}-ansible:latest"
+    pre_build_image: True
+    privileged: True
+    volume_mounts:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+    command: "/usr/sbin/init"
+    groups:
+      - kdc_replica
+      - kdcs
+    networks:
+      - name: molecule
+    network_mode: bridge
+
+provisioner:
+  name: ansible
+  options:
+    diff: true
+    v: True
+  inventory:
+    group_vars:
+      kdcs:
+        # Ensure that the master node is the first in the list (not guaranteed in 'groups.kdcs')
+        kerberos_server_kdcs: "{{ groups.kdc_master + groups.kdc_replica }}"
+        kerberos_server_kadmin_host: "{{ groups.kdc_master[0] }}"
+        kerberos_server_realm_name: TEST.LOCAL
+        kerberos_server_domain: "local"
+        # To make molecule tests work, need to disable keberos reverse DNS, because docker builtin DNS is inconsistent
+        # (Details: the returned PTR is suffixed with the network name, except for the own host, as it's resolved through /etc/hosts)
+        kerberos_server_rdns: "false"
+  lint:
+    name: ansible-lint
+scenario:
+  name: kdc-with-replica
+  test_sequence:
+    # - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    # - side_effect
+    - verify
+    - destroy
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
