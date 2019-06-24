@@ -14,6 +14,8 @@ kerberos_server_renew_lifetime: 7d
 kerberos_server_supported_enctypes: >
   aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal des-hmac-sha1:normal
   des-cbc-md5:normal des-cbc-crc:normal
+# krb5.conf 'rdns' parameter
+kerberos_server_rdns: true
 
 kerberos_server_kprop_replication_enabled: "{{ kerberos_server_kdcs | length >= 2 }}"
 kerberos_server_kprop_cronjob_enabled: "{{ kerberos_server_kprop_replication_enabled }}"
