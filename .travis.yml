@@ -13,7 +13,9 @@ install:
   - pip install molecule==2.22
   - pip install docker
 script:
-  - molecule test
+  # TODO re-enable the simple test after we merged the molecule lint fix PR
+  # - molecule test
+  - molecule test --scenario-name kdc-with-replica
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
