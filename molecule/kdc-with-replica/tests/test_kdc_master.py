@@ -27,7 +27,7 @@ def test_kprop_kdump_file_written(host):
     assert kprop_kdump_file.exists
     assert kprop_kdump_file.user == 'root'
     assert kprop_kdump_file.group == 'root'
-    assert oct(kprop_kdump_file.mode) == '0600'
+    assert oct(kprop_kdump_file.mode) == '0o600'
 
 
 @pytest.mark.parametrize('content', [

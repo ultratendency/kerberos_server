@@ -14,7 +14,7 @@ def test_kdc_conf(host):
     assert kdc_conf.is_file
     assert kdc_conf.user == 'root'
     assert kdc_conf.group == 'root'
-    assert oct(kdc_conf.mode) == '0600'
+    assert oct(kdc_conf.mode) == '0o600'
 
 
 def test_krb5_conf(host):
@@ -24,4 +24,4 @@ def test_krb5_conf(host):
     assert krb5_conf.is_file
     assert krb5_conf.user == 'root'
     assert krb5_conf.group == 'root'
-    assert oct(krb5_conf.mode) == '0644'
+    assert oct(krb5_conf.mode) == '0o644'
