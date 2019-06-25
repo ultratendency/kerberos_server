@@ -21,7 +21,6 @@
   notify:
     - restart kadmin
 
-
 - name: Copy the client configuration file
   template:
     src: krb5.conf.j2
@@ -39,8 +38,7 @@
     state: started
     enabled: True
 
-
-- name: Start kadmin service if not replica/slave
+- name: Start kadmin service on the master host
   service:
     name: "{{ kerberos_kadmin_service }}"
     state: started
@@ -76,28 +74,9 @@
   no_log: true
   with_items: "{{ kerberos_server_users }}"
 
-
-# Configure the optional kprop replication on the replica(s)
-- block:
-    - name: Copy the kprop ACL configuration file (on replica only)
-      template:
-        src: kpropd.acl.j2
-        dest: /var/kerberos/krb5kdc/kpropd.acl
-      notify:
-        - restart kprop
-
-    - name: Start the kprop service
-      service:
-        name: "{{ kerberos_kprop_service }}"
-        state: started
-        enabled: True
-  when:
-    - kerberos_server_kprop_replication_enabled
-    - is_replica_host
-
-# Configure the optional kprop replication on the master
+# Configure the optional kprop replication
 - import_tasks: kprop_replication.yml
   when:
     - kerberos_server_kprop_replication_enabled
-    - is_master_host
+    # - is_master_host
   tags: kprop_replication
