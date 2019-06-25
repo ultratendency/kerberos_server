@@ -48,6 +48,12 @@
     mode: 0755
   when: is_master_host
 
+# Run the sync script here once (and later on a cron schedule) for a first sync.
+# Note: The molecule tests contains explicit checks if the sync worked.
+- name: Test run the kprop replication script
+  command: /var/kerberos/kprop_kdc_replica_sync.sh
+  register: kprop_sync_result
+  when: is_master_host
 
 - block:
     - name: ensure cron is installed
