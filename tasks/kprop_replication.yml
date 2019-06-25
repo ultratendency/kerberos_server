@@ -53,6 +53,7 @@
 - name: Test run the kprop replication script
   command: /var/kerberos/kprop_kdc_replica_sync.sh
   register: kprop_sync_result
+  changed_when: false
   when: is_master_host
 
 - block:
