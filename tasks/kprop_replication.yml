@@ -3,6 +3,7 @@
   include_tasks: add_princ_and_kt.yml
   vars:
     _principal: "host/{{ item }}"
+    _keytab: "/etc/krb5.keytab"
   loop: "{{ kerberos_server_kdcs }}"
   when: is_master_host
 
