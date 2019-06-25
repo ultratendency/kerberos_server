@@ -1,42 +1,30 @@
 ---
-## Note: These tasks only need to be run on the kerberos master
+- name: Add a host principal and keytab for each kdc
+  include_tasks: add_princ_and_kt.yml
+  vars:
+    _principal: "host/{{ item }}"
+  loop: "{{ kerberos_server_kdcs }}"
+  when: is_master_host
 
+
+# Finally, we want to copy the keytab over to the slave server so that it has the keys it needs available to authenticate.
+# Done using 2 tasks (fetch + copy), because synchronize +delegate_to +'running in docker' (molecule tests) failed for me
+- name: get the keytab from the master
+  fetch:
+    src: /etc/krb5.keytab
+    dest: /tmp/
+    flat: yes
+  when: is_master_host
+
+- name: Deploy the master keytab to the replica kdcs (on replica only)
+  copy:
+    src: /tmp/krb5.keytab
+    dest: /etc/
+    mode: 0644
+  when: is_replica_host
 
 
 - block:
-    - name: Create kdc host principals
-      command: kadmin.local -q "addprinc -randkey  host/{{ item }}@{{ kerberos_server_realm_name|upper() }}"
-      loop: "{{ kerberos_server_kdcs }}"
-
-    - name: Create keytab with the kdcs
-      command: kadmin.local -q "ktadd -k /etc/krb5.keytab host/{{ item }}@{{ kerberos_server_realm_name|upper() }}"
-      loop: "{{ kerberos_server_kdcs }}"
-
-    # Finally, we want to copy the keytab over to the slave server so that it has the keys it needs available to authenticate.
-    # Done using 2 tasks (fetch + copy), because synchronize +delegate_to +'running in docker' (molecule tests) failed for me
-    - name: get the keytab from the master
-      fetch:
-        src: /etc/krb5.keytab
-        dest: /tmp/
-        flat: yes
-    # - name: Sync the keytab from local to the replica kdcs
-    #   copy:
-    #     src: /tmp/krb5.keytab
-    #     dest: /etc/
-    #     mode: 0644
-    #   delegate_to: "{{ item }}"
-    #   loop: "{{ kerberos_server_kdcs[1:] }}"
-
-  when:
-    - is_master_host
-
-- block:
-    - name: Deploy the master keytab to the replica kdcs (on replica only)
-      copy:
-        src: /tmp/krb5.keytab
-        dest: /etc/
-        mode: 0644
-
     - name: Deploy the kprop ACL configuration file (on replica only)
       template:
         src: kpropd.acl.j2
@@ -49,16 +37,16 @@
         name: "{{ kerberos_kprop_service }}"
         state: started
         enabled: True
-  when:
-    - is_replica_host
+  when: is_replica_host
+
 
 - name: Deploy the kprop replication script
   template:
     src: kprop_kdc_replica_sync.sh
     dest: /var/kerberos/kprop_kdc_replica_sync.sh
     mode: 0755
-  when:
-    - is_master_host
+  when: is_master_host
+
 
 - block:
     - name: ensure cron is installed

@@ -1,0 +1,30 @@
+---
+## Include tasks to idempotently create a host principal and its keytab
+## Include parameters:
+## - "_principal": the principal without the realm
+
+- name: Create kdc principal {{ _principal }}
+  command: |
+    {{ kerberos_server_kadmin_cmd }}  -q "addprinc -randkey  host/{{ _principal }}@{{ kerberos_server_realm_name|upper() }}"
+  register: addprinc_result
+  changed_when: addprinc_result.stderr and not (addprinc_result.stderr is search("Principal or policy already exists while creating") )
+
+- name: Fail if the principal could not be created
+  fail:
+    msg: The {{ _principal }} principal could not be created. Error is {{ addprinc_result.stderr }}
+  when: >
+    addprinc_result is failed
+    or not (addprinc_result.stdout is search("Principal .* created")
+    or addprinc_result.stderr is search("Principal or policy already exists while creating"))
+
+- name: Check if keytab exists
+  shell: |
+    set -o pipefail
+    klist -kte | grep -E "{{ _principal }}"
+  register: klist_kte_result
+  changed_when: false
+
+- name: Create keytab with the kdcs
+  command: |
+    {{ kerberos_server_kadmin_cmd }} -q "ktadd -k /etc/krb5.keytab {{ _principal }}@{{ kerberos_server_realm_name|upper() }}"
+  when: klist_kte_result.rc != 0
