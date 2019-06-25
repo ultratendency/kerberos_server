@@ -5,10 +5,12 @@
 ## - "_keytab": the keytab file
 
 - name: Create kdc principal {{ _principal }}
-  command: |
+  command: >
     {{ kerberos_server_kadmin_cmd }} -q "addprinc -randkey {{ _principal }}@{{ kerberos_server_realm_name|upper() }}"
   register: addprinc_result
-  changed_when: addprinc_result.stderr and not (addprinc_result.stderr is search("Principal or policy already exists while creating") )
+  changed_when:
+    - addprinc_result.stderr
+    - not (addprinc_result.stderr is search("Principal or policy already exists while creating") )
 
 - name: Fail if the principal could not be created
   fail:
@@ -35,8 +37,9 @@
   when: keytab.stat.exists
 
 - name: Create keytab with the kdcs
-  command: |
-    {{ kerberos_server_kadmin_cmd }} -q "ktadd -k {{ _keytab }} {{ _principal }}@{{ kerberos_server_realm_name|upper() }}"
+  command: >
+    {{ kerberos_server_kadmin_cmd }} -q
+     "ktadd -k {{ _keytab }} {{ _principal }}@{{ kerberos_server_realm_name|upper() }}"
   when: >
     not keytab.stat.exists
     or klist_kte_result.rc != 0

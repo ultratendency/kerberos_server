@@ -49,7 +49,7 @@ provisioner:
         kerberos_server_realm_name: TEST.LOCAL
         kerberos_server_domain: "local"
         # To make molecule tests work, need to disable keberos reverse DNS, because docker builtin DNS is inconsistent
-        # (Details: the returned PTR is suffixed with the network name, except for the own host, as it's resolved through /etc/hosts)
+        # Details: Returned PTR were suffixed with the network name, except for the own host (resolved by /etc/hosts)
         kerberos_server_rdns: "false"
   lint:
     name: ansible-lint

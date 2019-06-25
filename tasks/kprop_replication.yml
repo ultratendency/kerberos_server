@@ -8,8 +8,8 @@
   when: is_master_host
 
 
-# Finally, we want to copy the keytab over to the slave server so that it has the keys it needs available to authenticate.
-# Done using 2 tasks (fetch + copy), because synchronize +delegate_to +'running in docker' (molecule tests) failed for me
+# Finally, we need to copy the keytab over to the replicas that the keytab to authenticate to the master.
+# Done using 2 tasks (fetch + copy), because using synchronize +delegate_to +'running in docker' (in molecule) failed.
 - name: get the keytab from the master
   fetch:
     src: /etc/krb5.keytab
