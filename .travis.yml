@@ -13,8 +13,7 @@ install:
   - pip install molecule==2.22
   - pip install docker
 script:
-  # TODO re-enable the simple test after we merged the molecule lint fix PR
-  # - molecule test
+  - molecule test
   - molecule test --scenario-name kdc-with-replica
 
 notifications:
