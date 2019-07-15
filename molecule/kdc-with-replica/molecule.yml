@@ -46,7 +46,7 @@ provisioner:
         # Ensure that the master node is the first in the list (not guaranteed in 'groups.kdcs')
         kerberos_server_kdcs: "{{ groups.kdc_master + groups.kdc_replica }}"
         kerberos_server_kadmin_host: "{{ groups.kdc_master[0] }}"
-        kerberos_server_realm_name: TEST.LOCAL
+        kerberos_server_realm_name: EXAMPLE.COM
         kerberos_server_domain: "local"
         # To make molecule tests work, need to disable keberos reverse DNS, because docker builtin DNS is inconsistent
         # Details: Returned PTR were suffixed with the network name, except for the own host (resolved by /etc/hosts)
@@ -64,7 +64,7 @@ scenario:
     - prepare
     - converge
     - idempotence
-    # - side_effect
+    - side_effect
     - verify
     - destroy
 verifier:

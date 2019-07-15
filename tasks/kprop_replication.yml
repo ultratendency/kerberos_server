@@ -7,7 +7,6 @@
   loop: "{{ kerberos_server_kdcs }}"
   when: is_master_host
 
-
 # Finally, we need to copy the keytab over to the replicas that the keytab to authenticate to the master.
 # Done using 2 tasks (fetch + copy), because using synchronize +delegate_to +'running in docker' (in molecule) failed.
 - name: get the keytab from the master
@@ -24,7 +23,6 @@
     mode: 0644
   when: is_replica_host
 
-
 - block:
     - name: Deploy the kprop ACL configuration file (on replica only)
       template:
@@ -39,7 +37,6 @@
         state: started
         enabled: True
   when: is_replica_host
-
 
 - name: Deploy the kprop replication script
   template:
