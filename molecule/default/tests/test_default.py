@@ -78,8 +78,8 @@ def test_krb5_conf(host):
     "ticket_lifetime = 24h",
     "renew_lifetime = 7d",
     "EXAMPLE.COM = {",
-    "kdc = centos-7.example.com",
-    "admin_server = centos-7.example.com",
+    "kdc = centos7",
+    "admin_server = centos7",
     ".example.com = EXAMPLE.COM",
     "example.com = EXAMPLE.COM"
 ])
