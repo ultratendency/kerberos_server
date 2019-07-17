@@ -56,7 +56,7 @@ provisioner:
 scenario:
   name: kdc-with-replica
   test_sequence:
-    # - lint
+    - lint
     - destroy
     - dependency
     - syntax
