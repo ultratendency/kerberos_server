@@ -2,6 +2,8 @@
 - name: Add a host principal and keytab for each kdc
   include_tasks: add_princ_and_kt.yml
   vars:
+    _realm_name: "{{ kerberos_server_realm_name }}"
+    _kadmin_cmd: "{{ kerberos_server_kadmin_cmd }}"
     _principal: "host/{{ item }}"
     _keytab: "/etc/krb5.keytab"
   loop: "{{ kerberos_server_kdcs }}"
