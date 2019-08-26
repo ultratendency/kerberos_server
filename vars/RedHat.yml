@@ -1,4 +1,4 @@
 ---
-kerberos_service:
-  - krb5kdc
-  - kadmin
+kerberos_kdc_service: krb5kdc
+kerberos_kadmin_service: kadmin
+kerberos_kprop_service: kprop

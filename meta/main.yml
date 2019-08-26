@@ -1,6 +1,7 @@
 ---
 galaxy_info:
   author: "Matthias Baumann & Jan Hentschel"
+  description: "Role to install kerberos server(s)"
   company: Ultra Tendency GmbH
   license: BSD 3-Clause
   min_ansible_version: 1.4
@@ -8,7 +9,7 @@ galaxy_info:
     - name: EL
       versions:
         - 7
-  categories:
+  galaxy_tags:
     - kerberos
     - kdc
-dependencies: []
+dependencies: [ ]

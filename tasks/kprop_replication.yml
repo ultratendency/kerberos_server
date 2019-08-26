@@ -1,0 +1,76 @@
+---
+- name: Add a host principal and keytab for each kdc
+  include_tasks: add_princ_and_kt.yml
+  vars:
+    _realm_name: "{{ kerberos_server_realm_name }}"
+    _kadmin_cmd: "{{ kerberos_server_kadmin_cmd }}"
+    _principal: "host/{{ item }}"
+    _keytab: "/etc/krb5.keytab"
+  loop: "{{ kerberos_server_kdcs }}"
+  when: is_master_host
+
+# Finally, we need to copy the keytab over to the replicas that the keytab to authenticate to the master.
+# Done using 2 tasks (fetch + copy), because using synchronize +delegate_to +'running in docker' (in molecule) failed.
+- name: get the keytab from the master
+  fetch:
+    src: /etc/krb5.keytab
+    dest: /tmp/
+    flat: yes
+  when: is_master_host
+
+- name: Deploy the master keytab to the replica kdcs (on replica only)
+  copy:
+    src: /tmp/krb5.keytab
+    dest: /etc/
+    mode: 0644
+  when: is_replica_host
+
+- block:
+    - name: Deploy the kprop ACL configuration file (on replica only)
+      template:
+        src: kpropd.acl.j2
+        dest: /var/kerberos/krb5kdc/kpropd.acl
+      notify:
+        - restart kprop
+
+    - name: Start the kprop service (on replica only)
+      service:
+        name: "{{ kerberos_kprop_service }}"
+        state: started
+        enabled: True
+  when: is_replica_host
+
+- name: Deploy the kprop replication script
+  template:
+    src: kprop_kdc_replica_sync.sh
+    dest: /var/kerberos/kprop_kdc_replica_sync.sh
+    mode: 0755
+  when: is_master_host
+
+# Run the sync script here once (and later on a cron schedule) for a first sync.
+# Note: The molecule tests contains explicit checks if the sync worked.
+- name: Test run the kprop replication script
+  command: /var/kerberos/kprop_kdc_replica_sync.sh
+  register: kprop_sync_result
+  changed_when: false
+  when: is_master_host
+
+- block:
+    - name: ensure cron is installed
+      package:
+        name: cronie
+
+    - name: ensure crond service enabled and started
+      service:
+        name: crond
+        state: started
+        enabled: yes
+
+    - name: Deploy kprop cronjob (only required with replicas)
+      cron:
+        name: "Sync Master KDC with Replica every 5 minutes"
+        minute: "*/5"
+        job: "/var/kerberos/kprop_kdc_replica_sync.sh"
+  when:
+    - kerberos_server_kprop_cronjob_enabled
+    - is_master_host

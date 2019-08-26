@@ -1,0 +1,49 @@
+---
+## Self-contained include tasks (independent of the role) to idempotently create a host principal and its keytab.
+## Include parameters:
+## - "_kadmin_cmd": the kadmin cmd (usually 'kadmin.local')
+## - "_realm_name": the kerberos realm name
+## - "_principal": the principal without the realm
+## - "_keytab" (optional): the keytab file to create
+
+- name: Create kdc principal {{ _principal }}
+  command: >
+    {{ _kadmin_cmd }} -q "addprinc -randkey {{ _principal }}@{{ _realm_name|upper() }}"
+  register: addprinc_result
+  changed_when:
+    - addprinc_result.stderr
+    - not (addprinc_result.stderr is search("Principal or policy already exists while creating") )
+
+- name: Fail if the principal could not be created
+  fail:
+    msg: The {{ _principal }} principal could not be created. Error is {{ addprinc_result.stderr }}
+  when: >
+    addprinc_result is failed
+    or not (addprinc_result.stdout is search("Principal .* created")
+    or addprinc_result.stderr is search("Principal or policy already exists while creating"))
+
+- block:
+    - name: Check if keytab file exists
+      stat:
+        path: "{{ _keytab }}"
+      register: keytab
+
+    - name: Check if principal exists in the keytab
+      shell: |
+        set -o pipefail;
+        klist -kte {{ _keytab }} | grep -E "{{ _principal }}"
+      args:
+        executable: /bin/bash
+      register: klist_kte_result
+      changed_when: false
+      failed_when: klist_kte_result.rc not in [0,1]
+      when: keytab.stat.exists
+
+    - name: Create keytab with the kdcs
+      command: >
+        {{ _kadmin_cmd }} -q
+        "ktadd -k {{ _keytab }} {{ _principal }}@{{ _realm_name|upper() }}"
+      when: >
+        not keytab.stat.exists
+        or klist_kte_result.rc != 0
+  when: _keytab is defined

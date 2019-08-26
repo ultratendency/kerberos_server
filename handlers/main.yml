@@ -1,6 +1,17 @@
 ---
-- name: restart kerberos
+- name: restart kdc
   service:
-    name: "{{ item }}"
+    name: "{{ kerberos_kdc_service }}"
     state: restarted
-  with_items: "{{ kerberos_service }}"
+
+- name: restart kadmin
+  service:
+    name: "{{ kerberos_kadmin_service }}"
+    state: restarted
+  when: is_master_host
+
+- name: restart kprop
+  service:
+    name: "{{ kerberos_kprop_service }}"
+    state: restarted
+  when: is_replica_host
