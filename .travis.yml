@@ -9,8 +9,8 @@ services:
 before_install:
   - sudo apt-get -qq update
 install:
-  # Need to use the latest molecule 2.22 rc, for compatibility with ansible 2.8.x (provided in the used docker image)
-  - pip install molecule==2.22rc3
+  # molecule version >v2.22 required for compatibility with ansible 2.8.x (provided in the used docker image)
+  - pip install molecule==2.22
   - pip install docker
 script:
   - molecule test
