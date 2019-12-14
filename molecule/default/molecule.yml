@@ -8,7 +8,7 @@ lint:
 platforms:
   - name: centos-7
     image: fiercely/centos7:systemd
-    privileged: True
+    privileged: true
     volume_mounts:
       - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
     command: "/usr/sbin/init"

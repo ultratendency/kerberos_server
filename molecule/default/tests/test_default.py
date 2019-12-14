@@ -25,7 +25,7 @@ def test_kdc_conf(host):
     assert kdc_conf.is_file
     assert kdc_conf.user == 'root'
     assert kdc_conf.group == 'root'
-    assert oct(kdc_conf.mode) == '0600'
+    assert kdc_conf.mode == 0o600
 
 
 @pytest.mark.parametrize('content', [
@@ -50,7 +50,7 @@ def test_kadm5_acl(host):
     assert kadm5_acl.is_file
     assert kadm5_acl.user == 'root'
     assert kadm5_acl.group == 'root'
-    assert oct(kadm5_acl.mode) == '0600'
+    assert kadm5_acl.mode == 0o600
 
 
 @pytest.mark.parametrize('content', [
@@ -70,7 +70,7 @@ def test_krb5_conf(host):
     assert krb5_conf.is_file
     assert krb5_conf.user == 'root'
     assert krb5_conf.group == 'root'
-    assert oct(krb5_conf.mode) == '0644'
+    assert krb5_conf.mode == 0o644
 
 
 @pytest.mark.parametrize('content', [
