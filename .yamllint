@@ -16,3 +16,5 @@ rules:
     max: 120
     level: warning
   truthy: disable
+  empty-lines:
+    max: 1
