@@ -15,11 +15,19 @@
       when: ansible_os_family == 'RedHat'
 
   roles:
-    - { role: "{{ playbook_dir | dirname }}", kerberos_server_realm_name: "TEST.COM", kerberos_server_users: [{ name: user1, password: password, state: present }, { name: user2, password: password, state: absent }]}
+    - role: "{{ playbook_dir | dirname }}"
+      kerberos_server_realm_name: "TEST.COM"
+      kerberos_server_users:
+        - name: user1
+          password: password
+          state: present
+        - name: user2
+          password: password
+          state: absent
 
   post_tasks:
     - name: Get existing users
-      shell: kadmin.local -q "listprincs"
+      command: kadmin.local -q "listprincs"
       ignore_errors: yes
       changed_when: false
       register: existing_users
