@@ -14,6 +14,7 @@ install:
   # molecule version >v2.22 required for compatibility with ansible 2.8.x (provided in the used docker image)
   - pip install molecule[docker]
   - pip install docker
+  - pip install testinfra
 
 script:
   - molecule test
