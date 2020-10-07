@@ -11,7 +11,7 @@
   template:
     src: kdc.conf.j2
     dest: /var/kerberos/krb5kdc/kdc.conf
-    mode: '0644'
+    mode: '0600'
   notify:
     - restart kerberos
 
@@ -19,7 +19,7 @@
   template:
     src: kadm5.acl.j2
     dest: /var/kerberos/krb5kdc/kadm5.acl
-    mode: '0644'
+    mode: '0600'
   notify:
     - restart kerberos
 
