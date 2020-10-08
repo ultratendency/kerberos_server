@@ -2,6 +2,8 @@
 sudo: required
 
 language: python
+python:
+  - "3.6"
 
 services:
   - docker
@@ -10,8 +12,10 @@ before_install:
   - sudo apt-get -qq update
 install:
   # molecule version >v2.22 required for compatibility with ansible 2.8.x (provided in the used docker image)
-  - pip install molecule==2.22
+  - pip install molecule[docker]
   - pip install docker
+  - pip install testinfra
+
 script:
   - molecule test
 
